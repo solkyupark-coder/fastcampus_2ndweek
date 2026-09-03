@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>토지 매물 및 개발 제안서 - 서울시 관악구 신림동 1573-28</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 12mm;
+            background-color: #f8fafc;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Header Bar */
+        .header {
+            background: #1e3a8a;
+            color: #ffffff;
+            padding: 30px 25px;
+            position: relative;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: #d97706;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #93c5fd;
+        }
+
+        /* Main Content */
+        .content {
+            padding: 25px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #1e3a8a;
+            border-left: 4px solid #2563eb;
+            padding-left: 10px;
+            margin-bottom: 12px;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 12.5px;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: bold;
+            width: 28%;
+        }
+
+        td {
+            color: #1e293b;
+        }
+
+        /* Feature List */
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .feature-list li::before {
+            content: "■";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: #2563eb;
+            font-size: 10px;
+        }
+
+        .feature-list strong {
+            color: #0f172a;
+        }
+
+        /* Grid Cards */
+        .card-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px;
+            margin-left: -10px;
+            margin-right: -10px;
+        }
+
+        .card-cell {
+            width: 33.33%;
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px;
+            vertical-align: top;
+        }
+
+        .card-tag {
+            font-size: 10px;
+            font-weight: bold;
+            color: #2563eb;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .card-title {
+            font-size: 13.5px;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .card-desc {
+            font-size: 11.5px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* Callout Box */
+        .callout {
+            background-color: #eff6ff;
+            border-left: 4px solid #2563eb;
+            border-radius: 4px;
+            padding: 14px 16px;
+            margin-top: 10px;
+        }
+
+        .callout-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 4px;
+        }
+
+        .callout-desc {
+            font-size: 12.5px;
+            color: #1e3a8a;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #f1f5f9;
+            padding: 15px 25px;
+            font-size: 11px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <span class="badge">프리미엄 토지/개발 매물</span>
+        <h1>서울시 관악구 신림동 1573-28 토지 소개서</h1>
+        <p>강남·여의도 직주근접 및 풍부한 임차 수요를 갖춘 수익형 부동산 입지 분석</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        
+        <!-- 1. 기본 개요 -->
+        <div class="section">
+            <div class="section-title">1. 토지 기본 정보</div>
+            <table>
+                <tr>
+                    <th>소재지</th>
+                    <td>서울특별시 관악구 신림동 1573-28 (남부순환로154길 인근)</td>
+                </tr>
+                <tr>
+                    <th>지목 / 용도지역</th>
+                    <td>대지 / 제2종일반주거지역 (7층이하)</td>
+                </tr>
+                <tr>
+                    <th>건폐율 / 용적률</th>
+                    <td>건폐율 60% 이하 / 용적률 200% 이하 (지자체 조례 기준)</td>
+                </tr>
+                <tr>
+                    <th>입지 입지적 특성</th>
+                    <td>주택 밀집 지역 내 안정적인 장방형/정방형 필지 (신축 및 리모델링 용이)</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 2. 핵심 입지 장점 -->
+        <div class="section">
+            <div class="section-title">2. 입지 및 교통 경쟁력</div>
+            <ul class="feature-list">
+                <li><strong>우수한 대중교통망:</strong> 지하철 2호선(신대방역, 신림역) 및 신림선 경전철 이용이 용이하여 강남, 여의도, G밸리(구로/가산디지털단지) 출퇴근 직장인 수요 흡수</li>
+                <li><strong>풍부한 배후 임차 수요:</strong> 서울대학교 및 인근 대학생, 1인 가구 청년층 비중이 매우 높아 공실 위험이 현저히 낮고 월세 수익 창출에 최적화</li>
+                <li><strong>편리한 생활 인프라:</strong> 신림역 핵심 상권, 전통시장, 도림천 수변 산책로, 병원 및 각종 생활 편의시설 인접</li>
+                <li><strong>도로망 접근성:</strong> 남부순환로, 문성로, 신림-봉천터널( 예정/개통 ) 등 서울 주요幹線 도로 진출입 용이</li>
+            </ul>
+        </div>
+
+        <!-- 3. 추천 활용 방안 -->
+        <div class="section">
+            <div class="section-title">3. 추천 개발 및 활용 방안</div>
+            <table class="card-table">
+                <tr>
+                    <td class="card-cell">
+                        <div class="card-tag">PLAN A</div>
+                        <div class="card-title">수익형 다가구/원룸 신축</div>
+                        <div class="card-desc">1~2인 가구 타겟 소형 평형(원룸, 1.5룸) 구성으로 높은 가구수 확보 및 안정적인 연간 월세 수익 창출.</div>
+                    </td>
+                    <td class="card-cell">
+                        <div class="card-tag">PLAN B</div>
+                        <div class="card-title">상가주택 개발</div>
+                        <div class="card-desc">1층 필로티 주차장 및 근린생활시설, 상층부 주거 공간 구성으로 상가 및 주택 임대 수익 동시 확보.</div>
+                    </td>
+                    <td class="card-cell">
+                        <div class="card-tag">PLAN C</div>
+                        <div class="card-title">다세대주택 신축 분양</div>
+                        <div class="card-desc">신축 소형 빌라/다세대주택으로 개발하여 실거주자 및 투자자 대상 분양을 통한 빠른 자금 회수.</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 4. 종합 투자 의견 -->
+        <div class="section">
+            <div class="section-title">4. 종합 투자 및 개발 의견</div>
+            <div class="callout">
+                <div class="callout-title">💡 입지 분석 종합 요약</div>
+                <div class="callout-desc">
+                    본 필지는 풍부한 1인 가구 배후 수요와 우수한 대중교통 접근성을 갖춘 <strong>알짜 수익형 개발 부지</strong>입니다. 신림동 일대의 꾸준한 주거 임대 수요를 바탕으로 다가구/원룸 또는 상가주택 신축 시 <strong>높은 수익률과 자산 가치 제고 효과</strong>를 기대할 수 있습니다.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        * 본 토지 소개서는 투자 판단을 돕기 위한 참고용 자료입니다. 정확한 대지면적, 건폐율, 건축 허가 여부는 토지대장 및 관악구청 건축과 확인이 필요합니다.
+    </div>
+</div>
+
+</body>
+</html>

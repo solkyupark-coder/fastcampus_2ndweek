@@ -1,0 +1,30 @@
+:root {
+  --bg: #fff; --fg: #1a1a1a; --panel: #f6f6f4; --line: #ddd; --accent: #1f3a93;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #14161a; --fg: #e8e8e8; --panel: #1e2126; --line: #333; }
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+}
+
+.panel {
+  position: absolute; top: 12px; left: 12px; z-index: 2; width: 250px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; box-shadow: 0 2px 12px rgba(0,0,0,.15); font-size: 13px;
+}
+.panel h1 { font-size: 15px; margin: 0 0 8px; }
+.panel .sec { border-top: 1px solid var(--line); margin-top: 9px; padding-top: 8px; }
+.panel .sec > b { font-size: 11px; color: #888; }
+.panel label { display: flex; align-items: center; gap: 7px; margin: 4px 0; cursor: pointer; }
+.panel label input { margin: 0; }
+.panel .dim { font-size: 11px; color: #888; margin-top: 4px; }
+.panel .out {
+  margin-top: 6px; font-size: 12px; line-height: 1.7;
+  background: var(--bg); border-radius: 6px; padding: 8px; min-height: 62px;
+}
+.panel .out .k { color: #888; }
+
+.maplibregl-popup-content { font-family: inherit; font-size: 12.5px; line-height: 1.6; color: #1a1a1a; }

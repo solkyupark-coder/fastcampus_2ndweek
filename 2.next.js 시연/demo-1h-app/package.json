@@ -1,0 +1,32 @@
+{
+  "name": "demo-1h-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@deck.gl/core": "^9.3.11",
+    "@deck.gl/geo-layers": "^9.3.11",
+    "@deck.gl/mapbox": "^9.3.11",
+    "@loaders.gl/3d-tiles": "^4.4.5",
+    "@loaders.gl/core": "^4.4.5",
+    "@turf/area": "^7.4.0",
+    "@turf/buffer": "^7.4.0",
+    "@turf/helpers": "^7.4.0",
+    "@turf/turf": "^7.4.0",
+    "maplibre-gl": "^6.6.0",
+    "next": "16.3.3",
+    "polygon-clipping": "^0.15.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}

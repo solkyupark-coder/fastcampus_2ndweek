@@ -1,0 +1,422 @@
+<title>신림동 1573-28</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap">
+<style>
+:root{
+  --paper:#EFF2EE; --surface:#FBFCFA; --sunk:#E6EAE4;
+  --ink:#131714; --ink2:#4C554D; --ink3:#7F8981;
+  --line:#D2D8D0; --hair:#C2CAC0;
+  --teal:#0E6A5E; --ochre:#A9700F; --ochre-fill:rgba(184,122,24,.24);
+  --bldg:#C9D0C7; --road:#E3E7E1;
+  --shadow:0 1px 2px rgba(19,23,20,.05),0 8px 24px -16px rgba(19,23,20,.28);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D100E; --surface:#161A17; --sunk:#11150F;
+    --ink:#E8EBE6; --ink2:#A9B2AA; --ink3:#79837B;
+    --line:#272E29; --hair:#333B35;
+    --teal:#4FC3B0; --ochre:#E0AC4E; --ochre-fill:rgba(224,172,78,.20);
+    --bldg:#2C332D; --road:#1B201C;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D100E; --surface:#161A17; --sunk:#11150F;
+  --ink:#E8EBE6; --ink2:#A9B2AA; --ink3:#79837B;
+  --line:#272E29; --hair:#333B35;
+  --teal:#4FC3B0; --ochre:#E0AC4E; --ochre-fill:rgba(224,172,78,.20);
+  --bldg:#2C332D; --road:#1B201C;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  font-weight:400; font-size:15px; line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px 96px}
+
+.masthead{padding:56px 0 0}
+.ticks{height:7px; width:100%;
+  background-image:repeating-linear-gradient(to right,var(--hair) 0 1px,transparent 1px 20px);
+  border-bottom:1px solid var(--ink); opacity:.85}
+.eyebrow{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:11px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--teal); margin:22px 0 0}
+h1{font-family:'Gowun Batang',Georgia,serif; font-weight:700; font-size:clamp(40px,7vw,68px);
+  line-height:1.05; letter-spacing:-.01em; margin:8px 0 0; text-wrap:balance}
+.sub{font-size:17px; color:var(--ink2); margin:12px 0 0; max-width:60ch}
+.stamp{display:flex; flex-wrap:wrap; gap:8px 28px; margin:22px 0 0;
+  font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:12px; color:var(--ink3);
+  font-variant-numeric:tabular-nums}
+.stamp b{color:var(--ink2); font-weight:500}
+
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+  background:var(--line); border:1px solid var(--line); margin:40px 0 0}
+.stat{background:var(--surface); padding:20px}
+.stat dt{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink3); margin:0}
+.stat dd{margin:8px 0 0; font-family:'Gowun Batang',Georgia,serif; font-weight:700;
+  font-size:30px; line-height:1.15; font-variant-numeric:tabular-nums}
+.stat dd small{font-family:'IBM Plex Sans KR',sans-serif; font-weight:400;
+  font-size:13px; color:var(--ink2); display:block; margin-top:6px; line-height:1.5}
+.stat.zone dd{font-size:23px}
+.u{font-family:'IBM Plex Sans KR','Apple SD Gothic Neo',sans-serif; font-weight:400;
+  font-size:.6em; margin-left:1px; letter-spacing:0}
+.stat.hl dd{color:var(--ochre)}
+
+section{margin:72px 0 0}
+.shead{display:flex; align-items:baseline; gap:16px; border-bottom:1px solid var(--ink);
+  padding-bottom:10px; margin-bottom:28px}
+.shead h2{font-family:'Gowun Batang',Georgia,serif; font-weight:700; font-size:24px;
+  margin:0; letter-spacing:-.01em}
+.src{margin-left:auto; font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:10.5px;
+  letter-spacing:.08em; color:var(--ink3); text-align:right}
+
+.spread{display:grid; grid-template-columns:1.15fr 1fr; gap:36px; align-items:start}
+.mapcard{background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow)}
+svg.plat{display:block; width:100%; height:auto; background:var(--sunk)}
+.plat .lot{fill:var(--surface); stroke:var(--hair); stroke-width:.22; stroke-linejoin:round}
+.plat .road{fill:var(--road); stroke:var(--hair); stroke-width:.18}
+.plat .bldg{fill:var(--bldg); stroke:none; opacity:.85}
+.plat .bldg.bt{fill:var(--ochre); opacity:.5}
+.plat .target{fill:var(--ochre-fill); stroke:var(--ochre); stroke-width:.85; stroke-linejoin:round}
+.plat .jb{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:2.1px; fill:var(--ink3);
+  text-anchor:middle; dominant-baseline:middle}
+.plat .jb.jt{font-size:3px; fill:var(--ochre); font-weight:500}
+.plat .grid{stroke:var(--hair); stroke-width:.1; opacity:.5}
+.plat .rule{stroke:var(--ink2); stroke-width:.35; fill:none}
+.plat .rtxt{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:2.6px; fill:var(--ink2)}
+.legend{display:flex; flex-wrap:wrap; gap:6px 20px; padding:14px 16px;
+  border-top:1px solid var(--line); font-size:12px; color:var(--ink2)}
+.legend span{display:inline-flex; align-items:center; gap:7px}
+.sw{width:13px; height:13px; border:1px solid var(--hair); flex:none}
+.sw.t{background:var(--ochre-fill); border-color:var(--ochre)}
+.sw.l{background:var(--surface)}
+.sw.r{background:var(--road)}
+.sw.b{background:var(--bldg); border-color:var(--bldg)}
+
+table{width:100%; border-collapse:collapse; font-size:14.5px;
+  color:var(--ink); font-family:inherit; line-height:inherit}
+table th,table td{text-align:left; padding:11px 0; border-bottom:1px solid var(--line);
+  vertical-align:baseline}
+table th{font-weight:400; color:var(--ink3); width:38%; font-size:13px}
+table td{font-weight:500; font-variant-numeric:tabular-nums}
+table td em{font-style:normal; color:var(--ink3); font-weight:400; font-size:12.5px;
+  font-family:'IBM Plex Mono',ui-monospace,monospace; margin-left:8px}
+
+.env{display:grid; grid-template-columns:repeat(3,1fr); gap:24px}
+.envcard{border-left:2px solid var(--teal); padding:2px 0 2px 18px}
+.envcard .k{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:10.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink3)}
+.envcard .v{font-family:'Gowun Batang',Georgia,serif; font-weight:700; font-size:27px;
+  line-height:1.2; margin-top:6px; font-variant-numeric:tabular-nums}
+.envcard .n{font-size:13px; color:var(--ink2); margin-top:4px}
+
+.access{display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+  background:var(--line); border:1px solid var(--line)}
+.acc{background:var(--surface); padding:18px 20px}
+.acc .d{font-family:'Gowun Batang',Georgia,serif; font-weight:700; font-size:26px;
+  font-variant-numeric:tabular-nums}
+.acc .d span{font-size:14px; color:var(--ink3);
+  font-family:'IBM Plex Mono',ui-monospace,monospace; font-weight:400}
+.acc .l{font-size:13.5px; color:var(--ink2); margin-top:2px}
+
+.note{margin-top:28px; padding:20px 22px; background:var(--sunk);
+  border-left:2px solid var(--ochre); font-size:13.5px; color:var(--ink2)}
+.note b{color:var(--ink); font-weight:600}
+.note ul{margin:10px 0 0; padding-left:18px}
+.note li{margin:5px 0}
+
+footer{margin:80px 0 0; padding-top:20px; border-top:1px solid var(--ink);
+  display:flex; flex-wrap:wrap; gap:8px 24px; align-items:baseline;
+  font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:11px;
+  color:var(--ink3); letter-spacing:.04em}
+footer .last{margin-left:auto}
+
+@media (max-width:860px){
+  .spread{grid-template-columns:1fr; gap:28px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .access{grid-template-columns:repeat(2,1fr)}
+  .env{grid-template-columns:1fr; gap:18px}
+}
+@media (max-width:480px){
+  .stats{grid-template-columns:1fr}
+  .access{grid-template-columns:1fr}
+  .wrap{padding:0 18px 72px}
+  .shead{flex-wrap:wrap; gap:4px 12px}
+  .src{margin-left:0; text-align:left; width:100%}
+}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="ticks"></div>
+  <p class="eyebrow">토지 소개서 &middot; Land Brief</p>
+  <h1>신림동 1573-28</h1>
+  <p class="sub">서울특별시 관악구 신림동 1573-28 &middot; 남부순환로152길 37<br>제2종일반주거지역 내 278㎡ 단독주택 부지</p>
+  <div class="stamp">
+    <span>PNU <b>1162010200115730028</b></span>
+    <span>법정동 <b>1162010200</b></span>
+    <span>WGS84 <b>37.481077, 126.919543</b></span>
+    <span>기준 <b>2025.01 공시</b></span>
+  </div>
+</header>
+
+<dl class="stats">
+  <div class="stat"><dt>대지면적</dt><dd>278<span class="u">㎡</span><small>84.1평 &middot; 지목 대(垈)</small></dd></div>
+  <div class="stat zone"><dt>용도지역</dt><dd>제2종<br>일반주거<small>2003년 결정 &middot; 계획번호 0303</small></dd></div>
+  <div class="stat"><dt>개별공시지가</dt><dd>470.5<small>만원/㎡ &middot; 평당 1,555만원</small></dd></div>
+  <div class="stat hl"><dt>공시지가 총액</dt><dd>13.08억<small>1,307,990,000원 (시세 아님)</small></dd></div>
+</dl>
+
+<section>
+  <div class="shead">
+    <h2>필지 형상과 주변 지적</h2>
+    <span class="src">LP_PA_CBND_BUBUN / LT_C_SPBD</span>
+  </div>
+  <div class="spread">
+    <div class="mapcard">
+      <svg class="plat" viewBox="-70 -52 140 104" role="img"
+           aria-label="신림동 1573-28 필지와 반경 약 70미터 이내 인접 지적도. 대상 필지는 황토색으로 강조되어 있습니다.">
+        <defs>
+          <pattern id="g10" width="10" height="10" patternUnits="userSpaceOnUse">
+            <path class="grid" d="M10 0 V10 M0 10 H10" fill="none"/>
+          </pattern>
+        </defs>
+        <rect x="-70" y="-52" width="140" height="104" fill="url(#g10)"/>
+<polygon class="lot" points="-134.8,-73.4 -91.2,-83.5 -70.5,6.7 -73.8,9.2 -72.0,20.4 -68.4,20.2 -67.6,19.2 -63.0,39.3 -75.2,42.2 -76.1,43.7 -86.1,46.1 -83.1,58.0 -127.1,68.1 -138.3,17.8 -138.1,-2.5 -119.7,-6.6 -134.8,-73.4"/>
+<polygon class="lot" points="142.2,-9.9 251.9,-34.3 268.4,37.5 259.5,39.5 279.1,120.1 213.6,136.8 203.7,134.5 195.3,133.2 189.3,133.0 183.8,133.4 178.6,134.2 174.1,135.4 166.8,138.0 161.3,141.1 158.0,143.4 154.9,146.4 142.1,165.6 136.2,170.0 133.2,171.9 127.1,174.8 107.5,183.6 96.4,180.1 91.4,191.8 86.1,195.6 82.6,198.2 79.0,201.4 75.6,204.6 73.3,207.2 66.7,214.1 59.8,220.2 56.2,222.9 47.8,226.2 43.8,227.4 38.7,228.2 32.7,228.2 29.1,228.3 20.8,226.8 12.0,225.2 6.3,223.7 -3.1,220.7 -9.9,218.1 -17.2,215.1 -24.6,211.1 -29.0,208.4 -33.4,204.7 -36.3,201.4 -38.8,197.9 -35.6,194.2 -26.1,169.6 -10.6,112.8 -27.0,158.3 -28.8,172.3 -39.2,192.3 -41.0,194.1 -43.1,190.6 -56.1,53.6 -57.4,40.1 93.8,5.0 93.3,3.0 115.5,-3.0 128.2,-6.3 142.2,-9.9"/>
+<polygon class="lot" points="-69.3,-15.2 -59.5,-17.6 -56.5,-5.6 -66.6,-3.2 -69.3,-15.2"/>
+<polygon class="lot" points="-76.3,-45.5 -65.9,-48.1 -62.9,-35.8 -73.5,-33.4 -76.3,-45.5"/>
+<polygon class="lot" points="-69.5,-62.8 -59.4,-65.0 -56.2,-51.7 -55.9,-50.6 -65.9,-48.1 -76.3,-45.5 -77.0,-48.4 -66.6,-51.0 -69.5,-62.8"/>
+<polygon class="lot" points="-69.5,-62.8 -66.6,-51.0 -77.0,-48.4 -79.8,-60.5 -69.5,-62.8"/>
+<polygon class="lot" points="38.4,-7.2 50.0,-10.0 54.0,6.2 45.6,8.1 41.4,5.5 38.4,-7.2"/>
+<polygon class="lot" points="61.1,-12.7 71.9,-15.4 75.8,1.2 65.0,3.7 61.1,-12.7"/>
+<polygon class="lot" points="33.1,-3.8 35.5,6.8 32.9,11.1 27.0,12.4 23.6,-1.5 33.1,-3.8"/>
+<polygon class="lot" points="50.0,-10.0 61.1,-12.7 65.0,3.7 54.0,6.2 50.0,-10.0"/>
+<polygon class="lot" points="23.6,-1.5 27.0,12.4 16.9,14.7 14.0,2.0 13.7,0.9 23.6,-1.5"/>
+<polygon class="lot" points="-11.7,8.2 1.7,5.0 4.6,17.6 -5.4,19.9 -9.6,17.2 -11.7,8.2"/>
+<polygon class="lot" points="-48.6,-20.2 -45.0,-5.3 -55.7,-2.7 -65.9,-0.3 -66.6,-3.2 -56.5,-5.6 -59.5,-17.6 -48.6,-20.2"/>
+<polygon class="lot" points="-52.2,-35.1 -51.6,-32.5 -48.6,-20.2 -59.5,-17.6 -69.3,-15.2 -70.0,-18.1 -60.0,-20.5 -62.8,-32.8 -52.2,-35.1"/>
+<polygon class="lot" points="-55.9,-50.6 -52.2,-35.1 -62.8,-32.8 -72.9,-30.5 -73.5,-33.4 -62.9,-35.8 -65.9,-48.1 -55.9,-50.6"/>
+<polygon class="lot" points="-72.9,-30.5 -62.8,-32.8 -60.0,-20.5 -70.0,-18.1 -72.9,-30.5"/>
+<polygon class="lot" points="1.7,5.0 14.0,2.0 16.9,14.7 4.6,17.6 1.7,5.0"/>
+<polygon class="lot" points="-30.0,12.8 -27.2,24.9 -37.4,27.2 -40.1,15.3 -30.0,12.8"/>
+<polygon class="lot" points="-19.4,10.3 -17.4,19.0 -20.1,23.3 -27.2,24.9 -30.0,12.8 -19.4,10.3"/>
+<polygon class="lot" points="-52.1,18.2 -40.1,15.3 -37.4,27.2 -49.5,30.0 -52.1,18.2"/>
+<polygon class="lot" points="-61.2,20.4 -52.1,18.2 -49.5,30.0 -55.0,31.3 -59.3,28.7 -61.2,20.4"/>
+<polygon class="lot" points="-45.0,-5.3 -40.1,15.3 -52.1,18.2 -61.2,20.4 -61.8,17.5 -51.4,15.0 -55.7,-2.7 -45.0,-5.3"/>
+<polygon class="lot" points="-65.9,-0.3 -55.7,-2.7 -51.4,15.0 -61.8,17.5 -65.9,-0.3"/>
+<polygon class="lot" points="-70.5,6.7 -67.6,19.2 -68.4,20.2 -72.0,20.4 -73.8,9.2 -70.5,6.7"/>
+<polygon class="road" points="93.8,5.0 -57.4,40.1 -57.6,38.0 -63.0,39.3 -67.6,19.2 -70.5,6.7 -91.2,-83.5 -81.9,-85.6 -84.6,-81.4 -82.3,-71.5 -79.8,-60.5 -77.0,-48.4 -76.3,-45.5 -73.5,-33.4 -72.9,-30.5 -70.0,-18.1 -69.3,-15.2 -66.6,-3.2 -65.9,-0.3 -61.8,17.5 -61.2,20.4 -59.3,28.7 -55.0,31.3 -49.5,30.0 -37.4,27.2 -27.2,24.9 -20.1,23.3 -17.4,19.0 -19.4,10.3 -30.3,-37.2 -34.8,-56.5 -39.4,-76.4 -40.0,-79.4 -42.7,-91.0 -46.9,-93.7 -32.3,-97.0 -34.9,-92.8 -32.5,-82.2 -29.6,-69.6 -26.8,-57.6 -24.1,-45.7 -22.2,-37.7 -19.8,-27.0 -19.6,-26.3 -16.9,-14.4 -14.1,-2.1 -11.7,8.2 -9.6,17.2 -5.4,19.9 4.6,17.6 16.9,14.7 27.0,12.4 32.9,11.1 35.5,6.8 33.1,-3.8 30.4,-15.5 28.5,-23.5 25.5,-36.6 22.8,-48.0 21.0,-56.0 18.3,-67.5 16.9,-73.4 14.8,-82.7 12.1,-94.2 10.1,-103.2 5.8,-105.8 18.5,-108.7 15.9,-104.5 18.0,-95.6 20.7,-83.8 21.4,-80.9 24.1,-69.1 26.8,-57.5 27.5,-54.6 30.2,-42.7 34.0,-26.5 34.7,-23.5 38.4,-7.2 41.4,5.5 45.6,8.1 54.0,6.2 65.0,3.7 75.8,1.2 83.4,-0.6 86.0,-4.8 82.9,-18.1 78.8,-35.1 78.2,-37.5 74.9,-51.5 71.7,-65.1 71.0,-68.1 68.1,-79.9 65.5,-91.1 64.8,-94.0 61.9,-106.3 59.9,-114.6 55.6,-117.3 68.4,-120.2 65.7,-116.0 67.7,-107.8 70.5,-95.9 73.4,-83.9 76.2,-71.9 78.8,-60.9 82.3,-46.1 85.1,-34.4 87.9,-22.8 90.3,-12.8 91.9,-6.1 96.1,-3.5 96.8,-3.4 99.2,-0.0 93.3,3.0 93.8,5.0"/>
+<polygon class="lot" points="-375.5,-18.0 -134.8,-73.4 -119.7,-6.6 -138.1,-2.5 -138.3,17.8 -127.1,68.1 -83.1,58.0 -86.1,46.1 -76.1,43.7 -75.2,42.2 -63.0,39.3 -57.6,38.0 -57.4,40.1 -56.1,53.6 -66.4,56.0 -63.3,72.5 -58.9,109.0 -53.6,139.3 -50.6,148.5 -50.7,149.1 -53.9,166.2 -55.2,177.4 -54.9,181.2 -54.1,199.4 -62.4,214.8 -66.1,218.5 -76.2,208.2 -84.9,182.8 -95.4,157.6 -98.8,150.9 -118.4,130.6 -124.2,124.6 -196.1,152.9 -221.0,126.9 -282.9,119.1 -291.7,105.6 -298.6,95.2 -296.4,68.3 -271.6,26.8 -334.6,28.3 -343.1,30.3 -346.5,31.0 -355.0,32.9 -366.9,35.6 -375.5,-18.0"/>
+<polygon class="lot" points="-56.2,-51.7 -34.8,-56.5 -30.3,-37.2 -19.4,10.3 -30.0,12.8 -40.1,15.3 -45.0,-5.3 -48.6,-20.2 -51.6,-32.5 -52.2,-35.1 -55.9,-50.6 -56.2,-51.7"/>
+<polygon class="lot" points="-60.9,-71.3 -39.4,-76.4 -34.8,-56.5 -56.2,-51.7 -59.4,-65.0 -60.9,-71.3"/>
+<polygon class="lot" points="18.3,-67.5 21.0,-56.0 19.4,-53.5 9.8,-51.3 6.8,-64.9 18.3,-67.5"/>
+<polygon class="lot" points="6.8,-64.9 9.8,-51.3 -0.8,-48.9 -4.1,-62.5 6.8,-64.9"/>
+<polygon class="lot" points="-4.1,-62.5 -0.8,-48.9 -12.1,-46.3 -15.1,-60.1 -6.2,-62.1 -4.1,-62.5"/>
+<polygon class="lot" points="63.8,-48.7 74.9,-51.5 78.2,-37.5 67.3,-35.1 63.8,-48.7"/>
+<polygon class="lot" points="-16.6,-59.8 -15.1,-60.1 -12.1,-46.3 -21.6,-44.1 -24.1,-45.7 -26.8,-57.6 -16.6,-59.8"/>
+<polygon class="lot" points="-10.9,-42.5 -7.6,-29.6 -7.5,-29.1 -19.6,-26.3 -19.8,-27.0 -22.2,-37.7 -20.6,-40.2 -10.9,-42.5"/>
+<polygon class="lot" points="0.2,-45.0 3.3,-31.5 -7.5,-29.1 -7.6,-29.6 -10.9,-42.5 0.2,-45.0"/>
+<polygon class="lot" points="10.8,-47.4 14.1,-34.0 6.2,-32.2 3.3,-31.5 0.2,-45.0 10.8,-47.4"/>
+<polygon class="lot" points="20.3,-49.6 22.8,-48.0 25.5,-36.6 16.2,-34.5 14.1,-34.0 10.8,-47.4 20.3,-49.6"/>
+<polygon class="lot" points="16.2,-34.5 25.5,-36.6 28.5,-23.5 26.9,-21.0 19.5,-19.4 16.2,-34.5"/>
+<polygon class="lot" points="14.1,-34.0 16.2,-34.5 19.5,-19.4 9.6,-17.3 8.9,-20.4 6.2,-32.2 14.1,-34.0"/>
+<polygon class="lot" points="3.3,-31.5 6.2,-32.2 8.9,-20.4 -16.9,-14.4 -19.6,-26.3 -7.5,-29.1 3.3,-31.5"/>
+<polygon class="lot" points="8.9,-20.4 9.6,-17.3 10.5,-13.4 11.7,-8.2 -14.1,-2.1 -16.9,-14.4 8.9,-20.4"/>
+<polygon class="target" points="-14.1,-2.1 11.7,-8.2 13.7,0.9 14.0,2.0 1.7,5.0 -11.7,8.2 -14.1,-2.1"/>
+<polygon class="lot" points="20.2,-15.5 23.6,-1.5 13.7,0.9 11.7,-8.2 10.5,-13.4 20.2,-15.5"/>
+<polygon class="lot" points="27.8,-17.1 30.4,-15.5 33.1,-3.8 23.6,-1.5 20.2,-15.5 27.8,-17.1"/>
+<polygon class="road" points="21.0,-56.0 22.8,-48.0 20.3,-49.6 10.8,-47.4 0.2,-45.0 -10.9,-42.5 -20.6,-40.2 -22.2,-37.7 -24.1,-45.7 -21.6,-44.1 -12.1,-46.3 -0.8,-48.9 9.8,-51.3 19.4,-53.5 21.0,-56.0"/>
+<polygon class="road" points="26.9,-21.0 28.5,-23.5 30.4,-15.5 27.8,-17.1 20.2,-15.5 10.5,-13.4 9.6,-17.3 19.5,-19.4 26.9,-21.0"/>
+<polygon class="lot" points="33.3,-83.7 43.9,-86.1 46.6,-74.6 49.7,-61.4 50.0,-60.0 52.7,-48.3 41.9,-45.6 39.3,-57.4 40.4,-59.2 38.6,-60.3 35.9,-72.0 33.3,-83.7"/>
+<polygon class="lot" points="27.5,-54.6 39.3,-57.4 41.9,-45.6 41.7,-45.6 30.2,-42.7 27.5,-54.6"/>
+<polygon class="lot" points="60.2,-62.4 63.6,-48.7 53.3,-46.1 52.7,-48.3 50.0,-60.0 58.3,-62.0 60.2,-62.4"/>
+<polygon class="lot" points="71.7,-65.1 74.9,-51.5 63.8,-48.7 63.6,-48.7 60.2,-62.4 71.7,-65.1"/>
+<polygon class="lot" points="63.6,-48.7 63.8,-48.7 67.3,-35.1 78.2,-37.5 78.8,-35.1 57.0,-30.2 56.6,-31.7 53.3,-46.1 63.6,-48.7"/>
+<polygon class="lot" points="52.7,-48.3 53.3,-46.1 56.6,-31.7 53.7,-31.0 45.5,-29.1 41.7,-45.6 41.9,-45.6 52.7,-48.3"/>
+<polygon class="lot" points="30.2,-42.7 41.7,-45.6 45.5,-29.1 34.0,-26.5 30.2,-42.7"/>
+<polygon class="lot" points="46.2,-26.2 50.0,-10.0 38.4,-7.2 34.7,-23.5 46.2,-26.2"/>
+<polygon class="lot" points="53.7,-31.0 56.6,-31.7 57.0,-30.2 61.1,-12.7 50.0,-10.0 46.2,-26.2 54.4,-28.1 53.7,-31.0"/>
+<polygon class="lot" points="78.8,-35.1 82.9,-18.1 71.9,-15.4 61.1,-12.7 57.0,-30.2 78.8,-35.1"/>
+<polygon class="road" points="45.5,-29.1 53.7,-31.0 54.4,-28.1 46.2,-26.2 34.7,-23.5 34.0,-26.5 45.5,-29.1"/>
+<polygon class="bldg" points="50.6,-67.6 50.3,-68.8 55.8,-70.2 61.0,-48.5 55.3,-47.2 55.0,-48.6 53.4,-48.2 52.0,-54.3 53.2,-54.7 52.6,-56.7 51.5,-56.5 50.9,-59.0 52.0,-59.4 51.5,-61.5 50.4,-61.1 49.0,-67.1 50.6,-67.6"/>
+<polygon class="bldg" points="16.5,-13.1 16.6,-12.4 20.2,-13.2 21.1,-8.8 21.5,-8.9 21.8,-7.5 22.4,-7.7 23.6,-2.1 19.5,-1.2 19.6,-0.8 13.8,0.5 11.0,-11.9 16.5,-13.1"/>
+<polygon class="bldg" points="16.6,-32.9 17.9,-27.5 17.4,-27.4 18.8,-21.9 15.2,-21.0 15.5,-20.1 10.0,-18.8 7.1,-30.6 16.6,-32.9"/>
+<polygon class="bldg" points="52.5,-47.0 55.2,-35.3 51.2,-34.4 51.0,-35.3 48.9,-34.8 49.2,-33.9 45.3,-33.0 42.8,-44.7 52.5,-47.0"/>
+<polygon class="bldg" points="56.8,-26.4 60.2,-12.9 50.4,-10.4 47.0,-23.8 56.8,-26.4"/>
+<polygon class="bldg" points="71.3,-65.4 74.1,-54.7 68.0,-53.1 68.2,-52.2 63.4,-51.0 60.4,-62.6 71.3,-65.4"/>
+<polygon class="bldg" points="74.4,-48.3 75.2,-45.0 75.6,-45.1 76.2,-42.5 75.8,-42.5 76.9,-38.0 67.7,-35.9 65.2,-46.2 74.4,-48.3"/>
+<polygon class="bldg" points="64.9,-41.1 64.7,-41.1 65.2,-38.8 65.5,-38.9 66.8,-33.0 57.5,-30.8 54.2,-44.7 63.6,-47.0 64.9,-41.1"/>
+<polygon class="bldg" points="79.4,-31.3 81.6,-21.8 63.2,-17.5 61.0,-27.1 79.4,-31.3"/>
+<polygon class="bldg" points="70.6,-12.9 74.0,0.6 65.5,2.7 62.1,-10.7 70.6,-12.9"/>
+<polygon class="bldg" points="60.6,-11.6 63.5,-1.4 58.6,-0.1 58.9,0.9 54.1,2.3 50.9,-9.0 60.6,-11.6"/>
+<polygon class="bldg" points="33.9,-54.5 33.8,-55.2 39.6,-56.2 41.3,-46.1 35.7,-45.1 35.6,-46.0 31.0,-45.2 30.3,-49.4 29.2,-49.3 28.4,-53.5 33.9,-54.5"/>
+<polygon class="bldg" points="19.0,-49.2 19.2,-48.5 21.9,-49.1 22.0,-48.5 22.4,-48.6 23.5,-43.9 23.1,-43.8 24.0,-39.6 19.4,-38.5 19.7,-37.3 14.0,-36.0 11.4,-47.5 19.0,-49.2"/>
+<polygon class="bldg" points="42.0,-40.5 44.6,-29.6 33.9,-27.0 31.4,-38.1 42.0,-40.5"/>
+<polygon class="bldg" points="26.3,-35.5 27.8,-28.8 27.5,-28.7 28.4,-24.9 24.5,-24.0 24.9,-22.4 19.7,-21.2 17.0,-33.4 26.3,-35.5"/>
+<polygon class="bldg" points="45.2,-26.1 48.5,-11.7 38.6,-9.4 36.9,-16.0 38.5,-16.4 36.8,-24.1 45.2,-26.1"/>
+<polygon class="bldg" points="49.9,-8.7 53.3,4.8 47.3,6.3 42.6,3.9 40.0,-6.2 49.9,-8.7"/>
+<polygon class="bldg" points="24.6,-15.7 25.0,-15.0 27.1,-15.5 27.6,-15.7 28.2,-15.9 28.6,-16.0 29.2,-16.0 29.8,-15.9 30.1,-15.7 30.2,-15.6 32.1,-6.8 29.9,-6.3 30.1,-5.2 23.7,-3.8 21.1,-15.0 24.6,-15.7"/>
+<polygon class="bldg" points="30.6,3.0 30.9,4.3 33.7,3.6 34.4,6.4 33.8,7.2 29.6,8.2 30.2,10.4 19.0,13.0 16.4,1.9 32.5,-1.8 33.5,2.4 30.6,3.0"/>
+<polygon class="bldg" points="4.5,6.0 11.9,4.3 14.2,14.2 6.8,15.9 4.5,6.0"/>
+<polygon class="bldg" points="4.2,17.4 -4.9,19.5 -5.4,17.1 -7.2,17.6 -7.8,15.3 -9.0,15.6 -10.2,10.7 1.9,7.9 4.2,17.4"/>
+<polygon class="bldg" points="-6.0,-61.0 -5.9,-60.1 -4.7,-60.2 -2.5,-49.6 -9.4,-48.0 -9.9,-51.0 -12.3,-50.4 -14.2,-59.2 -6.0,-61.0"/>
+<polygon class="bldg" points="-0.3,-43.3 1.7,-36.0 2.2,-36.1 3.3,-32.3 -6.6,-29.5 -9.7,-40.7 -0.3,-43.3"/>
+<polygon class="bldg" points="5.9,-63.5 8.4,-52.4 -0.1,-50.5 -2.6,-61.8 5.9,-63.5"/>
+<polygon class="bldg" points="4.0,-43.5 3.7,-44.6 9.9,-46.1 11.7,-38.5 12.4,-38.7 13.0,-36.3 13.2,-36.4 13.6,-34.8 3.9,-32.5 1.5,-42.9 4.0,-43.5"/>
+<polygon class="bldg" points="-15.3,-58.6 -12.4,-46.8 -18.3,-45.4 -18.8,-47.5 -22.7,-46.5 -23.8,-51.1 -24.4,-50.9 -25.6,-56.1 -15.3,-58.6"/>
+<polygon class="bldg" points="-10.8,-29.3 -20.1,-27.2 -22.5,-37.7 -13.2,-39.8 -10.8,-29.3"/>
+<polygon class="bldg" points="6.5,-31.0 8.8,-20.7 -0.3,-18.6 -1.5,-23.8 -1.0,-23.9 -2.1,-29.0 6.5,-31.0"/>
+<polygon class="bldg" points="-6.7,-27.5 -4.8,-18.9 -9.9,-17.8 -10.0,-18.1 -16.4,-16.7 -18.2,-25.0 -6.7,-27.5"/>
+<polygon class="bldg" points="-41.0,2.2 -24.7,-1.1 -22.4,8.0 -38.7,11.5 -41.0,2.2"/>
+<polygon class="bldg" points="-44.2,-10.0 -27.2,-13.4 -25.3,-4.4 -41.9,-1.4 -44.2,-10.0"/>
+<polygon class="bldg" points="-47.3,-24.1 -30.3,-27.7 -28.1,-18.3 -45.1,-14.7 -47.3,-24.1"/>
+<polygon class="bldg" points="-54.4,-50.6 -36.3,-54.5 -33.9,-44.5 -51.9,-40.6 -54.4,-50.6"/>
+<polygon class="bldg" points="-50.9,-37.6 -33.2,-41.5 -30.8,-31.3 -48.5,-27.4 -50.9,-37.6"/>
+<polygon class="bldg" points="-15.1,-11.9 8.1,-17.3 10.0,-9.0 -13.2,-3.6 -15.1,-11.9"/>
+<polygon class="bldg bt" points="-4.2,-2.4 -4.1,-2.1 11.3,-5.7 12.9,1.3 -6.8,6.0 -8.5,-1.4 -4.2,-2.4"/>
+<polygon class="bldg" points="-26.6,24.0 -21.0,22.8 -21.5,20.2 -18.4,19.5 -20.1,13.0 -28.9,15.1 -26.6,24.0"/>
+<polygon class="bldg" points="-30.1,14.1 -28.1,23.1 -32.3,24.1 -32.0,25.6 -37.2,26.8 -39.6,16.3 -30.1,14.1"/>
+<polygon class="bldg" points="-40.2,17.1 -39.1,21.7 -40.0,21.9 -38.8,26.6 -43.9,27.9 -43.7,28.5 -48.2,29.7 -50.7,19.7 -40.2,17.1"/>
+<polygon class="bldg" points="-51.4,19.7 -49.1,30.1 -54.0,31.2 -54.4,29.0 -58.2,29.9 -58.7,27.6 -59.0,27.7 -59.3,26.3 -59.6,26.4 -60.7,21.7 -51.4,19.7"/>
+<polygon class="bldg" points="-67.9,36.1 -65.2,35.4 -64.5,35.6 -64.1,36.1 -64.1,36.5 -64.3,37.0 -64.9,37.3 -67.4,37.9 -67.9,36.1"/>
+<polygon class="bldg" points="-45.4,-1.3 -43.5,6.4 -44.3,6.7 -43.8,8.8 -43.0,8.6 -41.5,14.7 -50.2,16.8 -54.1,0.7 -45.4,-1.3"/>
+<polygon class="bldg" points="-55.2,-1.4 -51.8,12.8 -57.9,14.3 -59.0,9.7 -62.5,10.5 -63.3,7.0 -63.8,7.1 -65.2,1.0 -55.2,-1.4"/>
+<polygon class="bldg" points="-48.0,-18.8 -45.2,-6.2 -51.1,-4.9 -51.5,-6.3 -54.9,-5.5 -56.3,-11.8 -57.2,-11.6 -58.3,-16.6 -48.0,-18.8"/>
+<polygon class="bldg" points="-58.8,-15.9 -56.6,-6.6 -60.8,-5.5 -60.9,-5.7 -65.3,-4.7 -66.4,-9.2 -67.3,-9.0 -68.4,-13.5 -58.8,-15.9"/>
+<polygon class="bldg" points="-51.8,-33.7 -48.8,-20.6 -54.7,-19.3 -54.9,-20.4 -58.6,-19.5 -59.9,-24.9 -60.6,-24.7 -61.6,-28.9 -61.3,-28.9 -61.9,-31.4 -51.8,-33.7"/>
+<polygon class="bldg" points="-67.9,-29.5 -68.2,-31.2 -62.6,-32.4 -60.2,-20.6 -64.5,-19.7 -64.5,-19.7 -68.5,-18.9 -69.6,-23.9 -70.7,-23.7 -72.0,-28.7 -67.9,-29.5"/>
+<polygon class="bldg" points="-55.7,-48.8 -52.4,-35.6 -57.9,-34.1 -58.3,-35.5 -61.6,-34.7 -64.6,-46.6 -55.7,-48.8"/>
+<polygon class="bldg" points="-66.0,-46.8 -63.2,-35.9 -68.6,-34.5 -68.8,-35.2 -72.1,-34.3 -73.3,-39.3 -74.2,-39.1 -75.6,-44.3 -66.0,-46.8"/>
+<polygon class="bldg" points="-64.3,-62.5 -64.2,-62.4 -59.0,-63.7 -56.0,-50.8 -61.4,-49.6 -61.7,-50.9 -65.4,-50.0 -66.2,-53.8 -66.6,-53.7 -68.5,-61.5 -64.3,-62.5"/>
+<polygon class="bldg" points="-70.1,-61.1 -67.6,-51.5 -76.1,-49.4 -77.0,-53.3 -76.2,-53.5 -76.6,-55.2 -77.4,-55.0 -78.5,-59.3 -70.1,-61.1"/>
+<polygon class="bldg" points="40.6,-56.2 44.4,-57.1 44.7,-56.0 49.6,-57.3 51.6,-49.2 42.5,-47.0 40.6,-56.2"/>
+<text class="jb" x="-37.7" y="-20.8">1572-18</text>
+<text class="jb" x="-2.6" y="-11.3">1573-27</text>
+<text class="jb" x="-5.3" y="-23.3">1573-24</text>
+<text class="jb jt" x="-0.0" y="-0.0">1573-28</text>
+<text class="jb" x="-48.9" y="7.7">1572-13</text>
+<text class="jb" x="37.9" y="-36.0">1574-24</text>
+<text class="jb" x="42.3" y="-16.7">1574-25</text>
+<text class="jb" x="49.2" y="-38.7">1574-23</text>
+<text class="jb" x="46.3" y="-0.8">1574-31</text>
+<text class="jb" x="-3.4" y="12.6">1573-34</text>
+<text class="jb" x="-15.1" y="-34.3">1573-17</text>
+<text class="jb" x="9.3" y="9.8">1573-33</text>
+<text class="jb" x="12.9" y="-25.8">1573-23</text>
+<text class="jb" x="-3.7" y="-37.1">1573-19</text>
+<text class="jb" x="7.1" y="-39.5">1573-20</text>
+<text class="jb" x="-44.8" y="22.7">1572-15</text>
+        <g>
+          <path class="rule" d="M-64 42 h20 M-64 39.5 v5 M-44 39.5 v5 M-54 41 v3"/>
+          <text class="rtxt" x="-64.8" y="37.5">0</text>
+          <text class="rtxt" x="-48" y="37.5">20m</text>
+        </g>
+        <g>
+          <path class="rule" d="M60 -45 v9"/>
+          <path d="M60 -47.4 l-2.1 4.4 h4.2 Z" fill="var(--ink2)" stroke="none"/>
+          <text class="rtxt" x="63" y="-40.5">N</text>
+        </g>
+      </svg>
+      <div class="legend">
+        <span><i class="sw t"></i>대상 필지 1573-28</span>
+        <span><i class="sw l"></i>인접 필지</span>
+        <span><i class="sw r"></i>도로 &middot; 구거</span>
+        <span><i class="sw b"></i>건축물</span>
+      </div>
+    </div>
+    <table>
+      <tbody>
+        <tr><th>지목</th><td>대 <em>08</em></td></tr>
+        <tr><th>대지면적</th><td>278 ㎡ <em>84.09평</em></td></tr>
+        <tr><th>토지형상</th><td>세로장방 <em>03</em></td></tr>
+        <tr><th>실측 외곽</th><td>약 26m &times; 10m</td></tr>
+        <tr><th>지세</th><td>평지 <em>02</em></td></tr>
+        <tr><th>도로접면</th><td>소로한면 <em>06</em></td></tr>
+        <tr><th>이용상황</th><td>단독 <em>110</em></td></tr>
+        <tr><th>용도지역</th><td>제2종일반주거지역 <em>14</em></td></tr>
+        <tr><th>기존 건축물</th><td>지상 2층 <em>대장 …003192</em></td></tr>
+        <tr><th>등록구분</th><td>일반 <em>토지대장</em></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>건축 가능 규모</h2>
+    <span class="src">LT_C_UQ111 &middot; 서울시 도시계획조례</span>
+  </div>
+  <div class="env">
+    <div class="envcard">
+      <div class="k">건폐율 60%</div>
+      <div class="v">166.8<span class="u">㎡</span></div>
+      <div class="n">최대 건축면적 &middot; 50.5평</div>
+    </div>
+    <div class="envcard">
+      <div class="k">용적률 200%</div>
+      <div class="v">556.0<span class="u">㎡</span></div>
+      <div class="n">최대 연면적 &middot; 168.2평</div>
+    </div>
+    <div class="envcard">
+      <div class="k">허용 층수</div>
+      <div class="v">7층 이하</div>
+      <div class="n">제2종일반주거지역 원칙</div>
+    </div>
+  </div>
+  <div class="note">
+    <b>산정 근거</b> — 용도지역은 VWorld 지역·지구 레이어와 토지특성 조회에서 모두 제2종일반주거지역으로 일치 확인된 값이고,
+    건폐율·용적률·층수는 서울특별시 도시계획조례의 해당 용도지역 일반 상한을 대지면적 278㎡에 적용한 값입니다.
+    <ul>
+      <li>지구단위계획·고도지구·경관지구 등 개별 중첩규제는 반영되어 있지 않습니다.</li>
+      <li>실제 인허가 규모는 도로 폭에 따른 사선, 주차대수, 일조 사선으로 축소될 수 있습니다.</li>
+      <li>검토 착수 전 <b>토지이음 토지이용계획확인원</b>으로 중첩규제를 확인하십시오.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>입지</h2>
+    <span class="src">VWorld Search API &middot; 직선거리</span>
+  </div>
+  <div class="access">
+    <div class="acc"><div class="d">907<span> m</span></div><div class="l">신대방역 &middot; 2호선</div></div>
+    <div class="acc"><div class="d">942<span> m</span></div><div class="l">신림역 &middot; 2호선</div></div>
+    <div class="acc"><div class="d">1.67<span> km</span></div><div class="l">봉림중학교</div></div>
+    <div class="acc"><div class="d">2.84<span> km</span></div><div class="l">관악구청</div></div>
+  </div>
+  <div class="note">
+    2호선 두 개 역이 각각 약 900m 거리로, 도보 13분 내외의 배후 주거지입니다.
+    필지는 평지에 소로 한 면이 접한 세로장방형으로, 접도면 폭에 비해 안길이가 길어
+    신축 시 배치 계획에서 전면 폭 확보가 관건이 됩니다.
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>확인이 필요한 항목</h2>
+    <span class="src">본 문서 미포함</span>
+  </div>
+  <table>
+    <tbody>
+      <tr><th>권리관계</th><td>소유자, 근저당, 지상권 등 등기사항 <em>등기사항전부증명서</em></td></tr>
+      <tr><th>실거래 시세</th><td>공시지가는 과세 기준가로 시세와 다름 <em>국토부 실거래가</em></td></tr>
+      <tr><th>중첩규제</th><td>지구단위계획, 정비구역 지정 여부 <em>토지이음</em></td></tr>
+      <tr><th>접도 조건</th><td>접한 도로의 실제 폭원과 공도 여부 <em>도로대장</em></td></tr>
+      <tr><th>기존 건축물</th><td>2층 건축물의 용도, 연면적, 위반건축물 여부 <em>건축물대장</em></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <span>출처 국토교통부 VWorld 공간정보 오픈API</span>
+  <span>LP_PA_CBND_BUBUN &middot; NED 토지특성 &middot; LT_C_UQ111 &middot; LT_C_SPBD</span>
+  <span class="last">조회일 2026-09-03</span>
+</footer>
+
+</div>
