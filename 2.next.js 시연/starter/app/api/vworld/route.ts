@@ -5,7 +5,9 @@ import { NextRequest } from "next/server";
 //       /api/vworld?path=ned/data/getLandCharacteristics&pnu=...&stdrYear=2024
 //       /api/vworld?path=req/wms&LAYERS=lp_pa_cbnd_bubun&BBOX=...   (이미지)
 
-const KEY = process.env.VWORLD_KEY ?? "";
+// 키는 (1) 화면에서 붙여넣은 값 ?k=  (2) .env.local  순으로 찾는다.
+const ENV_KEY = process.env.VWORLD_KEY ?? "";
+const usable = (k: string) => !!k && !k.startsWith("여기에");
 const BASE = "https://api.vworld.kr";
 const ALLOW = new Set([
   "req/data", "req/wms", "req/wfs", "req/search", "req/address",
@@ -13,13 +15,15 @@ const ALLOW = new Set([
 ]);
 
 export async function GET(req: NextRequest) {
-  if (!KEY) return Response.json({ error: "VWORLD_KEY 미설정" }, { status: 500 });
   const sp = req.nextUrl.searchParams;
+  const KEY = (sp.get("k") ?? "").trim() || ENV_KEY;
+  if (!usable(KEY))
+    return Response.json({ error: "VWorld 인증키가 없습니다 — 왼쪽 패널에 키를 붙여넣으세요" }, { status: 401 });
   const path = sp.get("path") ?? "";
   if (!ALLOW.has(path)) return Response.json({ error: "허용되지 않은 path" }, { status: 400 });
 
   const out = new URLSearchParams();
-  sp.forEach((v, k) => { if (k !== "path") out.set(k, v); });
+  sp.forEach((v, k) => { if (k !== "path" && k !== "k") out.set(k, v); });
   out.set("key", KEY);
   out.set("domain", "http://localhost");
   if (path.startsWith("ned/")) out.set("format", out.get("format") ?? "json");

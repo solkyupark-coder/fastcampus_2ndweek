@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import type * as MLGL from "maplibre-gl";
-import { findPois, route, walkRoutes, isochrone, transitIsochrone, type Poi, type Walk, type IsoMode } from "./walk";
 
 /* maplibre-gl 은 CDN(layout.tsx)에서 불러옵니다.
    npm 으로 번들하면 Next 의 워커 처리 문제로 GeoJSON 레이어가 렌더되지 않습니다. */
@@ -29,15 +28,53 @@ export default function MapView() {
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [massGeoJSON, setMassGeoJSON] = useState<GeoJSON.FeatureCollection | null>(null);
 
-  // 보행/도달권역 상태
-  const [walkOn, setWalkOn] = useState(false);
-  const [walks, setWalks] = useState<Walk[] | null>(null);
-  const [pois, setPois] = useState<Poi[] | null>(null);
-  const [isoMode, setIsoMode] = useState<IsoMode | "transit" | "">("");
-  const [isoData, setIsoData] = useState<GeoJSON.FeatureCollection | null>(null);
-  const [transitInfo, setTransitInfo] = useState<{ reached: number; boarded: number; nearest: string } | null>(null);
-  const [walkLoading, setWalkLoading] = useState(false);
-  const [isoLoading, setIsoLoading] = useState(false);
+
+  /* ── VWorld 인증키 ───────────────────────────────────────────
+     수업에서는 .env.local 대신 화면에서 직접 붙여넣습니다.
+     입력한 키는 이 브라우저(localStorage)에만 남습니다.        */
+  const loadingParcels = useRef(false);
+
+  /* 스타일이 준비됐을 때만 필지를 올린다.
+     준비 전에 addSource 를 부르면 예외가 나므로 빈 소스로 한 번 찔러본다.
+     setStyle 이후에도 다시 불러야 해서 함수로 뺐다. */
+  const ensureParcels = (map: MLGL.Map) => {
+    // 지워진 지도(StrictMode 첫 인스턴스 등)를 만지면 예외가 난다
+    if (loadingParcels.current || mapRef.current !== map) return;
+    try {
+      if (map.getSource("parcels")) return;
+      map.addSource("__probe", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.removeSource("__probe");
+    } catch { return; }
+    loadingParcels.current = true;
+    loadParcels(map).finally(() => { loadingParcels.current = false; });
+  };
+
+  /** 스타일이 준비될 때까지 짧게 재시도한다 (최대 20초) */
+  const pumpParcels = (map: MLGL.Map) => {
+    ensureParcels(map);
+    const t = setInterval(() => {
+      if (mapRef.current !== map) { clearInterval(t); return; }
+      ensureParcels(map);
+      if (map.getSource("parcels")) clearInterval(t);
+    }, 250);
+    setTimeout(() => clearInterval(t), 20000);
+  };
+
+  const [vkey, setVkey] = useState("");
+  const [vkeyDraft, setVkeyDraft] = useState("");
+  useEffect(() => {
+    const saved = localStorage.getItem("vworld_key") ?? "";
+    setVkey(saved); setVkeyDraft(saved);
+  }, []);
+  const applyKey = () => {
+    const k = vkeyDraft.trim();
+    localStorage.setItem("vworld_key", k);
+    setVkey(k);
+  };
+  /** 지금 쓸 키 — state 가 아직 비었으면 저장값을 바로 읽는다 */
+  const keyNow = () =>
+    vkey || (typeof window !== "undefined" ? localStorage.getItem("vworld_key") ?? "" : "");
+  const kq = () => (keyNow() ? "&k=" + encodeURIComponent(keyNow()) : "");
 
   /* ============================================================
      STEP 1 — 배경지도
@@ -54,13 +91,19 @@ export default function MapView() {
     layers.forEach((L, i) => {
       sources["bg" + i] = {
         type: "raster",
-        tiles: ["/api/vworld-tile?t=" + L + "&z={z}&y={y}&x={x}"],
+        tiles: ["/api/vworld-tile?t=" + L + "&z={z}&y={y}&x={x}" + kq()],
         tileSize: 256,
         attribution: "© VWorld",
       };
       styleLayers.push({ id: "bg" + i, type: "raster", source: "bg" + i });
     });
-    return { version: 8, sources, layers: styleLayers };
+    // glyphs = 지도 위 글자용 폰트. 이게 없으면 text-field 레이어가 통째로 실패한다.
+    return {
+      version: 8,
+      glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+      sources,
+      layers: styleLayers,
+    };
   };
 
   useEffect(() => {
@@ -82,7 +125,14 @@ export default function MapView() {
       map.addControl(new window.maplibregl.NavigationControl(), "top-right");
       map.addControl(new window.maplibregl.ScaleControl({ unit: "metric" }));
 
-      map.on("load", () => loadParcels(map));
+      /* 배경지도 타일이 401이면(키 없음) map 의 "load" 는 끝내 오지 않습니다.
+         그래도 필지 838개는 떠야 하므로 styledata 로도 시작하고,
+         스타일이 인라인 객체라 이미 파싱이 끝났을 수 있어 한 번은 즉시 시도합니다.
+         started 플래그로 중복 실행만 막습니다. */
+      /* 배경지도 타일이 401이면(키 없음) "load" 가 끝내 오지 않는다.
+         그래도 필지 838개는 떠야 하므로 스타일 준비를 직접 확인하며 올린다. */
+      map.on("styledata", () => ensureParcels(map));
+      pumpParcels(map);
 
       /* ============================================================
          STEP 2 — 클릭한 지점의 좌표
@@ -124,7 +174,7 @@ export default function MapView() {
       point: lng + "," + lat, crs: "epsg:4326", type: "PARCEL", format: "json",
     });
     try {
-      const j = await fetch("/api/vworld?" + qs).then((r) => r.json());
+      const j = await fetch("/api/vworld?" + qs + kq()).then((r) => r.json());
       return j?.response?.result?.[0]?.text ?? "(이 지점에는 지번 주소가 없습니다)";
     } catch (e) {
       console.warn("주소 조회 실패", e);
@@ -160,10 +210,6 @@ export default function MapView() {
     // STEP 5용 필지 폴리곤 소스 (초기 빈 상태)
     map.addSource("parcel-poly", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
     map.addSource("mass", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-    // 보행/도달권역 소스
-    map.addSource("walk", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-    map.addSource("walk-poi", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-    map.addSource("iso", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
     map.addLayer({
       id: "parcels", type: "circle", source: "parcels",
       paint: {
@@ -196,7 +242,7 @@ export default function MapView() {
       setLoading({ 필지경계: true, 토지특성: true, 건축물대장: true, 규모검토: true });
 
       // STEP 5: 필지 폴리곤
-      const parcelFc = await getParcel(lng, lat);
+      const parcelFc = await getParcel(lng, lat, keyNow());
       if (parcelFc) {
         setParcelPoly(parcelFc);
         if (map.getSource("parcel-poly")) {
@@ -217,7 +263,7 @@ export default function MapView() {
 
       // STEP 6: 토지특성 (PNU로 조회)
       if (pnu) {
-        const land = await getLand(pnu);
+        const land = await getLand(pnu, keyNow());
         if (land) {
           setLandInfo(land);
           const picked = pickLand(land);
@@ -316,58 +362,6 @@ export default function MapView() {
     map.on("mouseenter", "parcels", () => { map.getCanvas().style.cursor = "pointer"; });
     map.on("mouseleave", "parcels", () => { map.getCanvas().style.cursor = ""; });
 
-    // ─── 보행 경로 레이어 ─────────────────────────────────────────────
-    if (!map.getLayer("walk-casing")) {
-      map.addLayer({
-        id: "walk-casing", type: "line", source: "walk",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 13, 5, 18, 10], "line-opacity": 0.9 },
-      });
-      map.addLayer({
-        id: "walk-line", type: "line", source: "walk",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: {
-          "line-color": ["match", ["get", "kind"], "subway", "#7c3aed", "#0284c7"],
-          "line-width": ["interpolate", ["linear"], ["zoom"], 13, 2.5, 18, 6],
-          "line-dasharray": [1.6, 1],
-        },
-      });
-      map.addLayer({
-        id: "walk-poi-dot", type: "circle", source: "walk-poi",
-        paint: {
-          "circle-radius": 7,
-          "circle-color": ["match", ["get", "kind"], "subway", "#7c3aed", "#0284c7"],
-          "circle-stroke-width": 2.5, "circle-stroke-color": "#fff",
-        },
-      });
-      map.addLayer({
-        id: "walk-poi-label", type: "symbol", source: "walk-poi",
-        layout: {
-          "text-field": ["get", "label"], "text-font": ["Noto Sans Regular"],
-          "text-size": 11, "text-offset": [0, 1.3], "text-anchor": "top", "text-allow-overlap": true,
-        },
-        paint: { "text-color": "#111", "text-halo-color": "#fff", "text-halo-width": 1.6 },
-      });
-    }
-
-    // ─── 등시선(도달권역) 레이어 ──────────────────────────────────────
-    if (!map.getLayer("iso-fill")) {
-      map.addLayer({
-        id: "iso-fill", type: "fill", source: "iso",
-        paint: {
-          "fill-color": ["match", ["get", "idx"], 0, "#ea580c", 1, "#fb923c", "#fed7aa"],
-          "fill-opacity": ["match", ["get", "idx"], 0, 0.3, 1, 0.22, 0.16],
-        },
-      });
-      map.addLayer({
-        id: "iso-line", type: "line", source: "iso",
-        paint: {
-          "line-color": ["match", ["get", "idx"], 0, "#7c2d12", 1, "#c2410c", "#ea580c"],
-          "line-width": ["match", ["get", "idx"], 0, 3, 1, 2.4, 2],
-          "line-opacity": 0.95,
-        },
-      });
-    }
 
     const xs = fc.features.map((f) => (f.geometry as GeoJSON.Point).coordinates[0]);
     const ys = fc.features.map((f) => (f.geometry as GeoJSON.Point).coordinates[1]);
@@ -378,11 +372,41 @@ export default function MapView() {
   // 배경지도 전환 — 스타일을 갈아끼우면 레이어가 지워지므로 다시 올립니다.
   useEffect(() => {
     const map = mapRef.current;
+    // count 가 찰 때까지(=최초 필지 로드 완료) 기다린다.
+    // 마운트 직후 setStyle 을 부르면 방금 올린 소스가 지워진다.
     if (!map || !count) return;
     map.setStyle(style(base));
-    map.once("styledata", () => { if (!map.getSource("parcels")) loadParcels(map); });
+    // setStyle 은 소스를 전부 지운다 → 준비되는 대로 다시 올린다
+    pumpParcels(map);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [base]);
+
+  /* 인증키가 바뀌면 스타일을 통째로 갈지 않고 타일 주소만 바꾼다.
+     setStyle 을 부르면 필지 838개가 잠깐 사라지기 때문이다. */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      if (mapRef.current !== map) return true;   // 지워진 지도 → 중단
+      if (!map.getStyle()) return false;
+      const names = base === "Satellite" ? ["Satellite", "Hybrid"] : [base];
+      let done = false;
+      names.forEach((L, i) => {
+        const src = map.getSource("bg" + i) as unknown as
+          { setTiles?: (t: string[]) => void } | undefined;
+        if (src?.setTiles) {
+          src.setTiles(["/api/vworld-tile?t=" + L + "&z={z}&y={y}&x={x}" + kq()]);
+          done = true;
+        }
+      });
+      return done;
+    };
+    if (apply()) return;
+    const t = setInterval(() => { if (apply()) clearInterval(t); }, 250);
+    const stop = setTimeout(() => clearInterval(t), 10000);
+    return () => { clearInterval(t); clearTimeout(stop); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vkey]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -391,19 +415,6 @@ export default function MapView() {
     }
   }, [showParcels]);
 
-  // 보행 경로 — 필지 클릭 시 실행
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !clicked) return;
-    loadWalk([clicked.lng, clicked.lat], map);
-  }, [walkOn, clicked]);
-
-  // 등시선(도달권역) — 필지 클릭 시 실행
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !clicked) return;
-    loadIso([clicked.lng, clicked.lat], map);
-  }, [isoMode, clicked]);
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>
@@ -411,6 +422,24 @@ export default function MapView() {
 
       <div className="panel">
         <h1>대지 조회 스타터</h1>
+
+        <div className="sec">
+          <b>VWorld 인증키</b>
+          <div className="keyrow">
+            <input
+              type="text" value={vkeyDraft} placeholder="키를 붙여넣으세요"
+              onChange={(e) => setVkeyDraft(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") applyKey(); }}
+              spellCheck={false} autoComplete="off"
+            />
+            <button type="button" onClick={applyKey}>적용</button>
+          </div>
+          <div className="dim">
+            {vkey
+              ? "적용됨 · " + vkey.slice(0, 8) + "…"
+              : "키가 없으면 배경지도와 조회가 동작하지 않습니다"}
+          </div>
+        </div>
 
         <div className="sec">
           <b>배경지도</b>
@@ -540,44 +569,6 @@ export default function MapView() {
           <b>진행:</b> 필지 클릭 → 주소(STEP3) → 필지경계(STEP5) → 토지특성(STEP6) → 건축물대장(STEP7) → 규모검토(STEP8) → 3D매스
         </div>
 
-        {/* 보행 경로 */}
-        <div className="sec">
-          <b>보행 경로 (Valhalla)</b>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
-            <input type="checkbox" checked={walkOn} onChange={(e) => setWalkOn(e.target.checked)} /> 표시
-          </label>
-          {walks && walks.length > 0 && (
-            <div className="out" style={{ marginTop: 8 }}>
-              {walks.map((w, i) => (
-                <div key={i} style={{ marginBottom: 4 }}>
-                  <span className="k">{w.poi.kind === "subway" ? "🚇" : "🚌"} {w.poi.name}</span>
-                  {w.poi.straight && <span className="dim"> (직선 {Math.round(w.poi.straight)}m)</span>}
-                  <br />
-                  <span className="k">실보행 {Math.round(w.meters)}m · {Math.round(w.seconds / 60)}분</span>
-                </div>
-              ))}
-              {walkLoading && <span className="dim"> · 계산 중…</span>}
-            </div>
-          )}
-        </div>
-
-        {/* 등시선(도달권역) */}
-        <div className="sec">
-          <b>도달권역 (등시선)</b>
-          <select value={isoMode} onChange={(e) => setIsoMode(e.target.value as any)} style={{ marginTop: 8, width: "100%", padding: 4 }}>
-            <option value="">끄기</option>
-            <option value="pedestrian">도보 (5/10/15분)</option>
-            <option value="bicycle">자전거 (10/20/30분)</option>
-            <option value="auto">자동차 (10/20/30분)</option>
-            <option value="transit">지하철 30분권 (환승 포함)</option>
-          </select>
-          {transitInfo && isoMode === "transit" && (
-            <div className="out" style={{ marginTop: 8, fontSize: 12 }}>
-              가장 가까운 역: {transitInfo.nearest} · 승차 가능역: {transitInfo.boarded}개 · 도달역: {transitInfo.reached}개
-            </div>
-          )}
-          {isoLoading && <span className="dim"> · 계산 중…</span>}
-        </div>
       </div>
     </div>
   );
@@ -623,8 +614,9 @@ function parseCSV(text: string): Parcel[] {
    ============================================================ */
 
 // VWorld API 호출 헬퍼 (CORS 우회용 우리 서버 프록시)
-const vworld = (path: string, params: Record<string, string>) =>
-  `/api/vworld?path=${encodeURIComponent(path)}&${new URLSearchParams(params).toString()}`;
+const vworld = (path: string, params: Record<string, string>, k = "") =>
+  `/api/vworld?path=${encodeURIComponent(path)}&${new URLSearchParams(params).toString()}`
+  + (k ? "&k=" + encodeURIComponent(k) : "");
 
 // 법정 건폐율/용적률 테이블 (용도지역명 부분 일치로 매핑)
 const LEGAL: Record<string, [number, number]> = {
@@ -638,27 +630,27 @@ function legalOf(uz: string) {
 }
 
 // STEP 5 — 클릭한 지점의 필지 폴리곤 가져오기 (VWorld 연속지적 GetFeature)
-export async function getParcel(lng: number, lat: number) {
+export async function getParcel(lng: number, lat: number, key = "") {
   const qs = new URLSearchParams({
     path: "req/data", service: "data", request: "GetFeature",
     data: "LP_PA_CBND_BUBUN", geomFilter: `POINT(${lng} ${lat})`,
     geometry: "true", crs: "EPSG:4326", size: "1", format: "json",
   });
-  const j = await fetch(vworld("req/data", Object.fromEntries(qs))).then((r) => r.json());
+  const j = await fetch(vworld("req/data", Object.fromEntries(qs), key)).then((r) => r.json());
   const fc = j?.response?.result?.featureCollection;
   console.log("[STEP5] 필지 폴리곤:", fc);
   return fc as GeoJSON.FeatureCollection | null;
 }
 
 // STEP 6 — PNU 로 토지특성(용도지역·지목·면적·공시지가) 조회 (토지이음/토지특성)
-export async function getLand(pnu: string) {
+export async function getLand(pnu: string, key = "") {
   if (!pnu) return null;
   const yr = new Date().getFullYear();
   for (const y of [yr, yr - 1, yr - 2]) {
     try {
       const r = await fetch(vworld("ned/data/getLandCharacteristics", {
         pnu, stdrYear: String(y), numOfRows: "1", pageNo: "1", format: "json",
-      })).then((x) => x.json());
+      }, key)).then((x) => x.json());
       const f = r?.landCharacteristicss?.field?.[0] ?? r?.response?.fields?.field?.[0];
       if (f) {
         console.log("[STEP6] 토지특성:", f);
@@ -693,96 +685,6 @@ export async function getBuilding(pnu: string) {
     console.warn("건축물 조회 실패", e);
     return null;
   }
-}
-
-// ─── 보행 경로 & 도달권역 (Valhalla + 로컬 POI) ─────────────────────
-let walkAbort: AbortController | null = null;
-let isoAbort: AbortController | null = null;
-
-export async function loadWalk(center: [number, number], map: MLGL.Map) {
-  walkAbort?.abort();
-  walkAbort = new AbortController();
-  const ac = walkAbort;
-
-  const clear = () => {
-    (map.getSource("walk") as MLGL.GeoJSONSource)?.setData({ type: "FeatureCollection", features: [] });
-    (map.getSource("walk-poi") as MLGL.GeoJSONSource)?.setData({ type: "FeatureCollection", features: [] });
-  };
-  if (!walkOn) { clear(); return; }
-
-  clear();
-  setWalkLoading(true);
-  try {
-    const { pois, walks } = await walkRoutes(center, ac.signal);
-    if (ac.signal.aborted) return;
-    setPois(pois);
-    setWalks(walks);
-    (map.getSource("walk") as MLGL.GeoJSONSource).setData({
-      type: "FeatureCollection",
-      features: walks.map((w) => ({
-        type: "Feature", properties: { kind: w.poi.kind },
-        geometry: { type: "LineString", coordinates: w.line },
-      })),
-    });
-    (map.getSource("walk-poi") as MLGL.GeoJSONSource).setData({
-      type: "FeatureCollection",
-      features: walks.map((w) => ({
-        type: "Feature",
-        properties: { kind: w.poi.kind, label: `${Math.round(w.meters)}m · ${Math.round(w.seconds / 60)}분` },
-        geometry: { type: "Point", coordinates: [w.poi.lon, w.poi.lat] },
-      })),
-    });
-  } catch (e) {
-    if ((e as Error).name !== "AbortError") console.warn("보행경로 실패", e);
-  } finally {
-    if (walkAbort === ac) setWalkLoading(false);
-  }
-}
-
-export async function loadIso(center: [number, number], map: MLGL.Map) {
-  isoAbort?.abort();
-  isoAbort = new AbortController();
-  const ac = isoAbort;
-
-  const src = map.getSource("iso") as MLGL.GeoJSONSource | undefined;
-  if (!src) return;
-
-  const mode = isoMode;
-  if (!mode) { src.setData({ type: "FeatureCollection", features: [] }); return; }
-
-  setIsoLoading(true);
-  setTransitInfo(null);
-  try {
-    let fc: GeoJSON.FeatureCollection | null = null;
-    if (mode === "transit") {
-      const t = await transitIsochrone(center, ac.signal);
-      if (ac.signal.aborted) return;
-      fc = t?.fc ?? { type: "FeatureCollection", features: [] };
-      if (t) setTransitInfo({ reached: t.reached, boarded: t.boarded, nearest: t.nearest });
-    } else {
-      fc = await isochrone(center, mode, ac.signal);
-      if (ac.signal.aborted) return;
-      fc = fc ?? { type: "FeatureCollection", features: [] };
-    }
-    if (ac.signal.aborted) return;
-    src.setData(fc);
-    setIsoData(fc);
-  } catch (e) {
-    if ((e as Error).name !== "AbortError") console.warn("등시선 실패", e);
-  } finally {
-    if (isoAbort === ac) setIsoLoading(false);
-  }
-}
-
-// STEP 8 — 규모검토 계산 (대지면적 × 법정 건폐율/용적률)
-export interface ScaleResult {
-  siteArea: number;
-  bcr: number;
-  far: number;
-  maxBuildingArea: number;
-  maxTotalArea: number;
-  maxFloors: number;
-  legal: string;
 }
 
 export function calcScale(siteArea: number, uz: string): ScaleResult | null {

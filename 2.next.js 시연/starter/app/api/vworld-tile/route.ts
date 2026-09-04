@@ -1,12 +1,14 @@
 import { NextRequest } from "next/server";
 
 // VWorld WMTS 배경타일 프록시 (key가 경로에 필요하므로 별도 라우트)
-const KEY = process.env.VWORLD_KEY ?? "";
+const ENV_KEY = process.env.VWORLD_KEY ?? "";
+const usable = (k: string) => !!k && !k.startsWith("여기에");
 const TYPES = new Set(["Base", "Satellite", "Hybrid", "gray", "midnight"]);
 
 export async function GET(req: NextRequest) {
-  if (!KEY) return new Response("VWORLD_KEY 미설정", { status: 500 });
   const sp = req.nextUrl.searchParams;
+  const KEY = (sp.get("k") ?? "").trim() || ENV_KEY;
+  if (!usable(KEY)) return new Response("VWorld 인증키 없음", { status: 401 });
   const t = sp.get("t") ?? "Base";
   const z = sp.get("z"), y = sp.get("y"), x = sp.get("x");
   if (!TYPES.has(t) || !z || !y || !x) return new Response("bad params", { status: 400 });
