@@ -476,7 +476,8 @@ export default function MapView() {
         id: "mass-3d", type: "fill-extrusion", source: "mass",
         filter: ["==", ["get", "kind"], "sel"],
         paint: {
-          "fill-extrusion-color": "#1d4ed8",
+          // 용적률 초과 층은 빨강 — 눈으로 바로 구분된다
+          "fill-extrusion-color": ["case", ["==", ["get", "over"], true], "#dc2626", "#1d4ed8"],
           "fill-extrusion-height": ["get", "top"],
           "fill-extrusion-base": ["get", "base"],
           "fill-extrusion-opacity": 0.6,
@@ -767,7 +768,8 @@ export default function MapView() {
 
     // 층 슬래브를 쌓는다. 바닥면(footprint)은 이미 offset 된 것을 받는다.
     const stack = (
-      foot: GeoJSON.Position[][][], nFloors: number, kind: string, label?: string
+      foot: GeoJSON.Position[][][], nFloors: number, kind: string, label?: string,
+      legalLive?: number,   // 용적률상 적법한 주거층 수. 넘는 층은 빨갛게 표시한다.
     ) => {
       const full = foot.reduce((t, p) => t + polyArea(p), 0);
       for (let i = 0; i < nFloors; i++) {
@@ -780,9 +782,12 @@ export default function MapView() {
             g = sunlightFloorAt(poly, topH, sunRule, north.boundaryY);
             if (!g) continue;
           }
+          // 필로티를 뺀 '몇 번째 주거층'인지 → 법정 층수를 넘으면 초과 층
+          const liveIdx = piloti ? i : i + 1;
+          const over = legalLive !== undefined && liveIdx > legalLive;
           feats.push({
             type: "Feature",
-            properties: { kind, base: i * FLOOR_H, top: topH - 0.25 },
+            properties: { kind, base: i * FLOOR_H, top: topH - 0.25, over },
             geometry: { type: "Polygon", coordinates: g },
           });
         }
@@ -804,8 +809,15 @@ export default function MapView() {
     };
 
     /** 대지(여러 폴리곤) → offset 건축면적 → 층수 → 매스 */
-    const build = (site: GeoJSON.Position[][][], z: NonNullable<ReturnType<typeof zoneOf>>, tag: string) => {
-      const siteArea = site.reduce((t, p) => t + polyArea(p), 0);
+    const build = (
+      site: GeoJSON.Position[][][], z: NonNullable<ReturnType<typeof zoneOf>>, tag: string,
+      officialArea?: number,   // 대장상 대지면적. 건폐율·용적률의 법정 기준은 이 값이다.
+    ) => {
+      // 지적도 폴리곤을 잰 면적과 대장 면적은 도면 정밀도만큼 다르다.
+      // 패널은 대장 면적으로 층수를 계산하므로 매스도 같은 값을 써야 어긋나지 않는다.
+      const siteArea = (officialArea && officialArea > 0)
+        ? officialArea
+        : site.reduce((t, p) => t + polyArea(p), 0);
       if (!(siteArea > 0)) return;
 
       // 0) 정북 인접대지경계선 자동 판정 (도로·공원이 끼면 반대편으로)
@@ -821,10 +833,13 @@ export default function MapView() {
       //    필로티 1층은 바닥면적에 산입하지 않으므로 주거층만 용적률에 센다.
       const far = farFor(z, biz);
       const maxTot = siteArea * far / 100;
-      const liveMax = Math.max(1, Math.floor(maxTot / fp.area));      // 주거층 수
+      const liveMax = Math.max(1, Math.floor(maxTot / fp.area));      // 법정 상한 주거층 수
       const nLive = floors ?? liveMax;
       const n = nLive + (piloti ? 1 : 0);                             // 총 층수
-      const totArea = Math.min(maxTot, fp.area * nLive);              // 용적률 산정 연면적
+      // 실제로 그려지는 연면적. 법정 상한으로 자르지 않는다 —
+      // 잘라 버리면 층을 아무리 올려도 "용적 100% 소진"으로만 보여 초과를 알 수 없다.
+      const totArea = fp.area * nLive;
+      const overArea = Math.max(0, totArea - maxTot);                 // 용적률 초과분
 
       // 3) 세대수 → 법정 주차 → 필로티로 감당되는지
       const units = Math.floor((totArea * 0.8) / unitSize);
@@ -837,7 +852,12 @@ export default function MapView() {
 
       stack(fp.coords, n, "sel",
         `${tag}${piloti ? `필로티+${nLive}층` : `${n}층`} · ${(n * FLOOR_H).toFixed(0)}m · ` +
-        `연면적 ${Math.round(totArea).toLocaleString()}㎡ · 용적 ${Math.round(totArea / siteArea * 100)}%`);
+        `연면적 ${Math.round(totArea).toLocaleString()}㎡ · 용적 ${Math.round(totArea / siteArea * 100)}%` +
+        (overArea > 0.5
+          ? `
+⚠ 법정 초과 +${Math.round(overArea).toLocaleString()}㎡ · 적법 ${liveMax}층까지`
+          : ""),
+        liveMax);
     };
 
     if (mergeMode && mergeList.length >= 2) {
@@ -845,7 +865,8 @@ export default function MapView() {
       if (z) {
         const merged = unionParcels(mergeList.map((x) => x.coords));
         const sumArea = merged.reduce((t, p) => t + polyArea(p), 0);
-        build(merged, z, `합필 ${mergeList.length}필지 · ${Math.round(sumArea).toLocaleString()}㎡ · `);
+        build(merged, z, `합필 ${mergeList.length}필지 · ${Math.round(sumArea).toLocaleString()}㎡ · `,
+          mergeList.reduce((a, x) => a + x.area, 0));
       }
       src.setData({ type: "FeatureCollection", features: feats });
       setSunLost(sunOn ? Math.round(cutArea) : null);
@@ -853,7 +874,7 @@ export default function MapView() {
       return;
     }
 
-    if (zone && selPoly.current) build(selPoly.current, zone, "");
+    if (zone && selPoly.current) build(selPoly.current, zone, "", Number(sel?.area) || 0);
 
     // 선택 필지의 현재 건물 — 대장 층수만큼
     const b = bld && bld !== "loading" ? bld : null;
@@ -1235,11 +1256,14 @@ export default function MapView() {
                 const maxTot = siteArea * far2 / 100;
                 const auto = fpInfo && fpInfo.area > 0 ? Math.max(1, Math.floor(maxTot / fpInfo.area)) : 1;
                 const n = floors ?? auto;
-                const totArea = fpInfo ? Math.min(maxTot, fpInfo.area * n) : 0;
+                // 법정 상한으로 자르지 않은 '실제 계획 연면적'
+                const totArea = fpInfo ? fpInfo.area * n : 0;
+                const overArea = Math.max(0, totArea - maxTot);
                 const fp = fpInfo && siteArea > 0 ? {
                   perFloor: fpInfo.area, totArea: +totArea.toFixed(0),
                   bcrUsed: fpInfo.bcrUsed, farUsed: +(totArea / siteArea * 100).toFixed(0),
                   farRatio: +(totArea / maxTot * 100).toFixed(1),
+                  over: +overArea.toFixed(0), isOver: overArea > 0.5,
                   limitedBy: fpInfo.limitedBy,
                 } : null;
                 return (
@@ -1256,8 +1280,17 @@ export default function MapView() {
                     {fp && (
                       <div className="flr-info">
                         층당 {fp.perFloor.toLocaleString()}㎡ · 연면적 <b>{fp.totArea.toLocaleString()}㎡</b><br />
-                        건폐 {fp.bcrUsed}% / {z.bcr}% · 용적 {fp.farUsed}% / {far2}%
-                        <span className={fp.farRatio >= 99.5 ? "ok" : "warn"}> ({fp.farRatio}% 소진)</span><br />
+                        건폐 {fp.bcrUsed}% / {z.bcr}% · 용적{" "}
+                        <span className={fp.isOver ? "over" : undefined}>{fp.farUsed}%</span> / {far2}%
+                        {fp.isOver
+                          ? <span className="over"> ({fp.farRatio}% · 초과)</span>
+                          : <span className={fp.farRatio >= 99.5 ? "ok" : "warn"}> ({fp.farRatio}% 소진)</span>}
+                        <br />
+                        {fp.isOver && (
+                          <span className="over-box">
+                            법정 용적률 초과 +{fp.over.toLocaleString()}㎡ · 적법 최대 <b>{auto}층</b>
+                          </span>
+                        )}
                         <span className="dim2">{fp.limitedBy}에 걸림 · 자동 {auto}층</span>
                       </div>
                     )}

@@ -217,3 +217,15 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
   .card .pg-diff { color: #fdba74; }
   .card .pg-diff b { color: #fed7aa; }
 }
+
+/* 용적률 초과 표시 */
+.panel .flr-info .over { color: #dc2626; font-weight: 700; }
+.panel .flr-info .over-box {
+  display: block; margin: 3px 0; padding: 4px 7px;
+  background: #fef2f2; border: 1px solid #fecaca; border-radius: 5px;
+  color: #b91c1c; font-weight: 600;
+}
+@media (prefers-color-scheme: dark) {
+  .panel .flr-info .over { color: #fca5a5; }
+  .panel .flr-info .over-box { background: #2a1215; border-color: #7f1d1d; color: #fca5a5; }
+}
